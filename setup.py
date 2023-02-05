@@ -43,6 +43,7 @@ setup(
     install_requires=[ 
         'click',
         'Pillow',
+        'requests',
     ],
 
     setup_requires=(['pytest-runner'] if 'test' in sys.argv else []) + [
