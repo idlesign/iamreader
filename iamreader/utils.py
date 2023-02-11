@@ -1,5 +1,7 @@
 import logging
+from os import walk
 from pathlib import Path
+from typing import List
 
 LOG = logging.getLogger('iamreader')
 
@@ -9,7 +11,8 @@ PATH_CURRENT = Path.cwd()
 PATH_RESOURCES = PATH_CURRENT / 'res'
 PATH_RESOURCES_OUT = PATH_RESOURCES / 'out'
 PATH_OUT_AUDIO = PATH_RESOURCES_OUT / 'aud'
-PATH_PROJECT_CFG = PATH_RESOURCES / 'iamreader.json'
+PATH_OUT_VIDEO = PATH_RESOURCES_OUT / 'vid'
+PATH_OUT_IMAGES = PATH_RESOURCES_OUT / 'img'
 
 
 def configure_logging(log_level=None):
@@ -20,3 +23,15 @@ def configure_logging(log_level=None):
 
     """
     logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level or logging.INFO)
+
+
+def list_files(src_path: Path, *, ext: str) -> List[Path]:
+    candidates = []
+
+    for path, subs, files in walk(src_path):
+        for file in files:
+            fullpath = Path(path) / file
+            if fullpath.suffix == f'.{ext}':
+                candidates.append(fullpath)
+
+    return candidates

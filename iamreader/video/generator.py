@@ -1,4 +1,4 @@
-from os import walk, makedirs
+from os import makedirs
 from pathlib import Path
 from subprocess import run
 from typing import List
@@ -8,19 +8,7 @@ from PIL import ImageDraw
 from PIL import ImageFont
 
 from ..annotations import Annotations
-from ..utils import LOG, PATH_ASSETS
-
-
-def list_audio_files(src_path: Path) -> List[Path]:
-    candidates = []
-
-    for path, subs, files in walk(src_path):
-        for file in files:
-            fullpath = Path(path) / file
-            if fullpath.suffix == '.mp3':
-                candidates.append(fullpath)
-
-    return candidates
+from ..utils import LOG, PATH_ASSETS, list_files
 
 
 def generate_cover(*, fpath: Path, text: str, template: Path):
@@ -48,11 +36,9 @@ def generate_media(
     audio_files: List[Path],
     annotations: Annotations,
     cover_template: Path,
-    dest: Path
+    dest_vid: Path,
+    dest_img: Path,
 ):
-
-    dest_vid = dest / 'vid'
-    dest_img = dest / 'img'
 
     makedirs(dest_vid, exist_ok=True)
     makedirs(dest_img, exist_ok=True)
@@ -88,10 +74,17 @@ def generate_media(
         )
 
 
-def generate(*, path_resources: Path, path_audio_in: Path, path_out: Path):
+def generate(
+    *,
+    path_resources: Path,
+    path_audio_in: Path,
+    path_out_vid: Path,
+    path_out_img: Path,
+):
     generate_media(
-        audio_files=list_audio_files(path_audio_in),
+        audio_files=list_files(path_audio_in, ext='mp3'),
         annotations=Annotations(fpath=path_resources / 'index.txt'),
         cover_template=path_resources / 'bg.png',
-        dest=path_out,
+        dest_vid=path_out_vid,
+        dest_img=path_out_img,
     )
