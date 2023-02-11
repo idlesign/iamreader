@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 import logging
-from pathlib import Path
 
 import click
 
 from . import VERSION_STR
 from .exceptions import IamreaderException
 from .rc import RemoteControl, RemoteControlUi
-from .utils import configure_logging
+from .utils import configure_logging, PATH_RESOURCES_OUT, PATH_OUT_AUDIO, PATH_RESOURCES, PATH_PROJECT_CFG
 from .video import generate as video_generate
 from .video.services import YoutubeService
 
@@ -37,8 +36,9 @@ def video():
 def generate():
     """Generates video from audio and text index file."""
     video_generate(
-        path_in=PATH_CURRENT / 'in',
-        path_out=PATH_CURRENT / 'out',
+        path_resources=PATH_RESOURCES,
+        path_audio_in=PATH_OUT_AUDIO,
+        path_out=PATH_RESOURCES_OUT,
     )
 
 

@@ -88,10 +88,10 @@ def generate_media(
         )
 
 
-def generate(*, path_in: Path, path_out: Path):
+def generate(*, path_resources: Path, path_audio_in: Path, path_out: Path):
     generate_media(
-        audio_files=list_audio_files(path_in),
-        annotations=Annotations(fpath=path_in / 'index.txt'),
-        cover_template=path_in / 'bg.png',
+        audio_files=list_audio_files(path_audio_in),
+        annotations=Annotations(fpath=path_resources / 'index.txt'),
+        cover_template=path_resources / 'bg.png',
         dest=path_out,
     )
