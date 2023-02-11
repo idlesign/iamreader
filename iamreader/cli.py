@@ -5,12 +5,10 @@ import click
 
 from . import VERSION_STR
 from .exceptions import IamreaderException
+from .publishing import media_publish
 from .rc import RemoteControl, RemoteControlUi
 from .utils import configure_logging, PATH_OUT_AUDIO, PATH_RESOURCES, PATH_OUT_VIDEO, PATH_OUT_IMAGES
 from .video import generate as video_generate
-from .video.services import YoutubeService
-
-PATH_CURRENT = Path.cwd()
 
 
 @click.group()
@@ -27,6 +25,7 @@ def rc():
     window = RemoteControlUi(remote_control=RemoteControl())
     window.bind_shortcuts()
     window.loop()
+
 
 @entry_point.group()
 def video():
@@ -46,8 +45,11 @@ def generate():
 @video.command()
 @click.argument('service')
 def publish(service):
-    """Publish videos at a remote service."""
-    YoutubeService.publish()
+    """Publish media at a remote service."""
+    media_publish(
+        service=service,
+        path_resources=PATH_RESOURCES,
+    )
 
 
 def main():
