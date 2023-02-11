@@ -1,6 +1,9 @@
 import logging
+from pathlib import Path
 
 LOG = logging.getLogger('iamreader')
+
+PATH_ASSETS = Path(__file__).parent / 'assets'
 
 
 def configure_logging(log_level=None):

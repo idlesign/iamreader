@@ -8,7 +8,7 @@ from PIL import ImageDraw
 from PIL import ImageFont
 
 from ..annotations import Annotations
-from ..utils import LOG
+from ..utils import LOG, PATH_ASSETS
 
 
 def list_audio_files(src_path: Path) -> List[Path]:
@@ -32,8 +32,10 @@ def generate_cover(*, fpath: Path, text: str, template: Path):
 
     # /usr/local/share/fonts
     # ~/.local/share/fonts
-    #font = ImageFont.truetype('~/.local/share/fonts/Ubuntu-R.ttf', 20)
-    font = ImageFont.truetype('Ubuntu-R.ttf', 20)
+    font = ImageFont.truetype(
+        f"{ PATH_ASSETS / 'fonts' / 'Ubuntu-R.ttf' }",
+        size=20
+    )
 
     draw = ImageDraw.Draw(img)
     draw.text(xy=(450, 250), text=text, fill=(255, 255, 255), font=font)
