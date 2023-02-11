@@ -5,7 +5,7 @@ from subprocess import check_output, CalledProcessError
 from typing import Tuple, IO, List, Callable
 
 from .actions import TypeAction
-from ..exceptions import RemoteControlExeption
+from ..exceptions import RemoteControlException
 from ..utils import LOG
 
 
@@ -28,7 +28,7 @@ class RemoteControl:
             check_output('ps -xc | grep audacity', shell=True)
 
         except CalledProcessError:
-            raise RemoteControlExeption('Please run Audacity before iamreader is started.')
+            raise RemoteControlException('Please run Audacity before iamreader is started.')
 
         f_out = self._fpath_outgoing
         f_in = self._fpath_incoming
@@ -36,7 +36,7 @@ class RemoteControl:
         LOG.debug(f'Audacity pipe files: {f_out}, {f_in}')
 
         if not all([f_out.exists(), f_in.exists()]):
-            raise RemoteControlExeption(
+            raise RemoteControlException(
                 'Unable to find Audacity pipe files. '
                 'Please ensure Audacity is running and "mod-script-pipe"'
                 'is enabled in Preferences -> Modules.')
