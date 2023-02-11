@@ -7,12 +7,21 @@ from .utils import LOG
 
 RE_FILE_NAME = re.compile('^((?:\d{2}|xx)_[^\s.]+).?\s+([^\n]+)$')
 RE_LINE_INDENT = re.compile('^(\s*)[^\n]+$')
+RE_AUTHOR = re.compile(r'^\[([^]]+)](.+)')
 
 
 class AnnotationNode:
 
     def __init__(self, *, title: str, depth: int, filename: str = ''):
+        self.title_raw = title
         self.title = title
+        self.author: str = ''
+
+        if match := RE_AUTHOR.match(title):
+            author, title = match.groups()
+            self.author = author.strip()
+            self.title = title.strip()
+
         self.depth = depth
         self.filename = filename
         self.parent: Optional['AnnotationNode'] = None
@@ -22,6 +31,16 @@ class AnnotationNode:
         filename = self.filename
         postfix = f' [{filename}]' if filename else ''
         return f'{self.title}{postfix}'
+
+    def get_author_first(self) -> str:
+        parent = self.parent
+        author = ''
+
+        while parent:
+            author = parent.author
+            parent = parent.parent
+
+        return author
 
     def get_full_title(self, *, root_title: bool = False) -> List[str]:
 
