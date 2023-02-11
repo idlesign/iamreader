@@ -1,7 +1,7 @@
 import re
 from collections import defaultdict
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Generator, Tuple
 
 from .utils import LOG
 
@@ -44,8 +44,8 @@ class AnnotationNode:
 
 class Annotations:
 
-    def __init__(self, *, fpath: Path):
-        self.fpath = fpath
+    def __init__(self, *, index_fpath: Path):
+        self.fpath = index_fpath
         nodes = self.parse()
         self.nodes = nodes
         self.by_filename: Dict[str, AnnotationNode] = {
@@ -101,3 +101,12 @@ class Annotations:
                         last_node = node
 
         return all_nodes
+
+    def iter_for_files(
+        self,
+        files: List[Path]
+    ) -> Generator[Tuple[str, Path, Optional[AnnotationNode]], None, None]:
+
+        for filepath in sorted(files):
+            filename = filepath.stem
+            yield filename, filepath, self.by_filename.get(filename)
