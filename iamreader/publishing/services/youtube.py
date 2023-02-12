@@ -72,6 +72,9 @@ class TokenFetcher:
 
     Docs: https://developers.google.com/youtube/v3/guides/auth/server-side-web-apps
 
+    Quota note: If a daily (Queries per day) limit quota in your project is 0.
+        You'd rather create a new project and your client apps.
+
     """
 
     def __init__(self, work_path: Path):
@@ -208,7 +211,7 @@ class YoutubeService(Service):
 
     def upload(self, item: dict) -> str:
 
-        LOG.debug(f'{self}: uploading video ...')
+        LOG.debug(f'{self}: preparing for video upload ...')
 
         def sanitize(val: str) -> str:
             return val.replace('<', '').replace('>', '')
@@ -222,12 +225,12 @@ class YoutubeService(Service):
                     'description': sanitize(item['description']),  # 5000 bytes no <>
                     'tags': item['tags'],  # 500 ch
                     'categoryId': '22',  # 22 People & Blogs  27 Education
-                    'defaultLanguage': 'RUS',
+                    'defaultLanguage': 'ru',
                 },
                 'status': {
-                    'privacyStatus': 'private',  # private public unlisted
                     'selfDeclaredMadeForKids': False,
-                    'publishAt': item['dt_pub']
+                    'privacyStatus': 'private',  # private public unlisted
+                    'publishAt': item['dt_pub'].replace(' ', 'T'),
                     # (only for private) 1994-11-05T08:15:30-05:00 / 1994-11-05T13:15:30Z
                 }
             },
@@ -250,6 +253,8 @@ class YoutubeService(Service):
             raise ServiceException(f'{self}: {status} {response.text}')
 
         with open(item['fpath'], 'rb') as f:
+
+            LOG.debug(f'{self}: uploading video ...')
 
             upload_data_url = response.headers['Location']
 
