@@ -208,15 +208,15 @@ class YoutubeService(Service):
 
     def upload(self, item: dict) -> str:
 
-        LOG.debug(f'{self}: upload video ...')
+        LOG.debug(f'{self}: uploading video ...')
 
         def sanitize(val: str) -> str:
             return val.replace('<', '').replace('>', '')
 
         response = self._session.post(
-            'https://www.googleapis.com/upload/youtube/v3/videos',
+            'https://youtube.googleapis.com/youtube/v3/videos',
             params={'part': 'snippet,status'},
-            data=dumps({
+            json={
                 'snippet': {
                     'title': sanitize(item['title']),  # 100 ch no <>
                     'description': sanitize(item['description']),  # 5000 bytes no <>
@@ -227,11 +227,10 @@ class YoutubeService(Service):
                 'status': {
                     'privacyStatus': 'private',  # private public unlisted
                     'selfDeclaredMadeForKids': False,
-                    # 'license': 'youtube',
                     'publishAt': item['dt_pub']
                     # (only for private) 1994-11-05T08:15:30-05:00 / 1994-11-05T13:15:30Z
                 }
-            }),
+            },
             headers={
                 'Authorization': f'Bearer {self._token}',
             },
@@ -295,6 +294,7 @@ class YoutubeService(Service):
         # quota 10000 a day -- upload 1600 -- to playlist 50 -- read 1
 
         video_id = self.upload(item)
+        self._contribute_item(ident_remote=video_id, item=item)
 
         for playlist in item['tags']:
             self.add_to_playlist(video=video_id, playlist=playlist)

@@ -115,6 +115,13 @@ class Service:
 
         return config
 
+    def _contribute_item(self, *, ident_remote: str, item: dict):
+        item.update({
+            'ident_remote': ident_remote,
+            'dt_prc': f'{datetime.now()}',
+        })
+        self._cfg.get_pub_items(self.alias).append(item)
+
     def publish(self):  # pragma: nocover
         items = self.materialize_template()
         for item in items:
