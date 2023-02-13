@@ -1,12 +1,11 @@
 import glob
 import threading
 import webbrowser
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import partial
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from json import loads, dumps
-from os import fstat
 from pathlib import Path
 from typing import Callable, Tuple, List, Optional
 from urllib.parse import urlparse, parse_qs
@@ -211,15 +210,12 @@ class YoutubeService(Service):
 
     def upload(self, item: dict) -> str:
 
-        LOG.debug(f'{self}: preparing for video upload ...')
+        LOG.debug(f'{self}: uploading video ...')
 
         def sanitize(val: str) -> str:
             return val.replace('<', '').replace('>', '')
 
-        response = self._session.post(
-            'https://youtube.googleapis.com/youtube/v3/videos',
-            params={'part': 'snippet,status'},
-            json={
+        data = dumps({
                 'snippet': {
                     'title': sanitize(item['title']),  # 100 ch no <>
                     'description': sanitize(item['description']),  # 5000 bytes no <>
@@ -234,10 +230,20 @@ class YoutubeService(Service):
                     # (only for private) 1994-11-05T08:15:30-05:00 / 1994-11-05T13:15:30Z
                 }
             },
-            headers={
-                'Authorization': f'Bearer {self._token}',
-            },
-        )
+            ensure_ascii=False
+        ).encode()
+
+        with open(item['fpath'], 'rb') as f:
+
+            response = self._session.post(
+                'https://www.googleapis.com/upload/youtube/v3/videos',
+                params={'part': 'snippet,status', 'uploadType': 'multipart'},
+                files={
+                    'metadata': (None, data, 'application/json'),
+                    'file': (f.name, f, 'video/avi'),
+                },
+                headers={'Authorization': f'Bearer {self._token}'},
+            )
 
         LOG.debug(f'HTTP {self}: {response.status_code}:\n{dict(response.headers)}\n{response.text}')
 
@@ -249,29 +255,18 @@ class YoutubeService(Service):
             self._token = self._get_token(drop=True)
             return self.upload(item)
 
+        elif status == 403:
+            LOG.debug(f'{self}: quota exceeded')
+            raise ServiceException(f'{self}: Quota exceeded. Please retry the other day.')
+
         if not response.ok:
             raise ServiceException(f'{self}: {status} {response.text}')
 
-        with open(item['fpath'], 'rb') as f:
+        json = response.json()
 
-            LOG.debug(f'{self}: uploading video ...')
+        video_id = json['id']
 
-            upload_data_url = response.headers['Location']
-
-            response = self._session.put(
-                upload_data_url,
-                data=f,
-                headers={
-                    'Authorization': f'Bearer {self._token}',
-                    'X-Upload-Content-Type': 'video/*',
-                    'X-Upload-Content-Length': f'{fstat(f.fileno()).st_size}'
-                },
-            )
-
-            LOG.debug(f'HTTP {self}: {response.status_code}:\n{dict(response.headers)}\n{response.text}')
-
-            if not response.ok:
-                raise ServiceException(f'{self}: {status} {response.text}')
+        return video_id
 
     def _get_token(self, *, drop: bool = False) -> str:
 
@@ -281,9 +276,20 @@ class YoutubeService(Service):
 
         cfg_path, config = read()
 
-        if drop and cfg_path:
-            cfg_path.unlink(missing_ok=True)
-            cfg_path, config = read()
+        if cfg_path:
+            cfg_path: Path
+
+            # drop expired to save quota
+            expired = (
+                datetime.now() >
+                datetime.fromtimestamp(cfg_path.stat().st_mtime) + timedelta(seconds=config.get('expires_in', 3599))
+            )
+            if expired:
+                drop = True
+
+            if drop:
+                cfg_path.unlink(missing_ok=True)
+                cfg_path, config = read()
 
         if config is None:
             LOG.debug(f'{self}: running token fetcher ...')
@@ -299,9 +305,10 @@ class YoutubeService(Service):
         # quota 10000 a day -- upload 1600 -- to playlist 50 -- read 1
 
         video_id = self.upload(item)
+
         self._contribute_item(ident_remote=video_id, item=item)
 
-        for playlist in item['tags']:
+        for playlist in item['playlists']:
             self.add_to_playlist(video=video_id, playlist=playlist)
 
         return True
