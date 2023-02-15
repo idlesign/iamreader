@@ -191,6 +191,30 @@ class YoutubeService(Service):
     def materialize_template(self, path_sources: Path = None) -> List[dict]:
         return super().materialize_template(path_sources=path_sources or PATH_OUT_VIDEO)
 
+    def _check_response(self, response: requests.Response) -> bool:
+
+        ok = response.ok
+
+        if not ok:
+            LOG.debug(f'HTTP {self}: {response.status_code}:\n{dict(response.headers)}\n{response.text}')
+
+        status = response.status_code
+
+        if status == 401:
+            # token mismatch
+            LOG.info(f'{self}: token seems stale')
+            self._token = self._get_token(drop=True)
+            return False
+
+        elif status == 403:
+            LOG.warning(f'{self}: quota exceeded')
+            raise ServiceException(f'{self}: Quota exceeded. Please retry the other day.')
+
+        if not ok:
+            raise ServiceException(f'{self}: {status} {response.text}')
+
+        return True
+
     def add_to_playlist(self, *, video: str, playlist: str):
 
         LOG.debug(f'{self}: add video {video} to playlist {playlist} ...')
@@ -205,8 +229,9 @@ class YoutubeService(Service):
             },
             headers={'Authorization': f'Bearer {self._token}'}
         )
-        print(response.status_code)
-        print(response.text)
+
+        if not self._check_response(response):
+            self.add_to_playlist(video=video, playlist=playlist)
 
     def upload(self, item: dict) -> str:
 
@@ -245,22 +270,8 @@ class YoutubeService(Service):
                 headers={'Authorization': f'Bearer {self._token}'},
             )
 
-        LOG.debug(f'HTTP {self}: {response.status_code}:\n{dict(response.headers)}\n{response.text}')
-
-        status = response.status_code
-
-        if status == 401:
-            # token mismatch
-            LOG.debug(f'{self}: token seems stale')
-            self._token = self._get_token(drop=True)
-            return self.upload(item)
-
-        elif status == 403:
-            LOG.debug(f'{self}: quota exceeded')
-            raise ServiceException(f'{self}: Quota exceeded. Please retry the other day.')
-
-        if not response.ok:
-            raise ServiceException(f'{self}: {status} {response.text}')
+        if not self._check_response(response):
+            self.upload(item)
 
         json = response.json()
 
