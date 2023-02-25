@@ -27,6 +27,22 @@ def pause(event: Event, *, ui: 'RemoteControlUi'):
     ui.rc.cmd_pause()
 
 
+def play(event: Event, *, ui: 'RemoteControlUi'):
+    ui.rc.cmd_play()
+
+
+def save(event: Event, *, ui: 'RemoteControlUi'):
+    ui.rc.cmd_save()
+
+
+def speed_inc(event: Event, *, ui: 'RemoteControlUi'):
+    ui.rc.cmd_speed_inc()
+
+
+def speed_dec(event: Event, *, ui: 'RemoteControlUi'):
+    ui.rc.cmd_speed_dec()
+
+
 SHORTCUTS: List[Shortcut] = [
     Shortcut(
         keys=['Tab'],
@@ -37,6 +53,26 @@ SHORTCUTS: List[Shortcut] = [
         keys=['space'],
         hint='Pause recording',
         func=pause
+    ),
+    Shortcut(
+        keys=['Insert'],
+        hint='Save project',
+        func=save
+    ),
+    Shortcut(
+        keys=['minus'],
+        hint='Decrement playback speed',
+        func=speed_dec
+    ),
+    Shortcut(
+        keys=['equal'],
+        hint='Increment playback speed',
+        func=speed_inc
+    ),
+    Shortcut(
+        keys=['a'],
+        hint='Playback at speed',
+        func=play
     ),
     Shortcut(
         keys=['e'],
@@ -59,6 +95,9 @@ SHORTCUTS: List[Shortcut] = [
         func=partial(label_action, action=RollbackAction(depth=2))
     ),
 ]
+"""
+Key names: https://docs.huihoo.com/tkinter/tkinter-reference-a-gui-for-python/key-names.html
+"""
 
 for slot in range(10):
     SHORTCUTS.append(

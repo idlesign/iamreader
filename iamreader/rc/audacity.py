@@ -18,6 +18,8 @@ class RemoteControl:
     def __init__(self):
         self._pipe_out, self._pipe_in = self._get_pipes()
         self._recording: bool = False
+        self._speed: int = 100
+        self._speed_delta: int = 25
 
     def pack_action_data(self, action: TypeAction) -> str:
         return dumps(action.serialize())
@@ -62,7 +64,30 @@ class RemoteControl:
         self.write('Pause')
 
     def cmd_stop(self):
-        self.write('PlayStop')
+        self.write('PlayStopSelect')
+
+    def cmd_play(self):
+        self.write('PlayAtSpeed')
+
+    def cmd_speed_inc(self):
+        self.cmd_speed_set(self._speed_delta)
+
+    def cmd_speed_dec(self):
+        self.cmd_speed_set(-self._speed_delta)
+
+    def cmd_speed_set(self, delta: int):
+        # SetPlaySpeed accepts no params, emulate
+        cmd = 'PlaySpeedInc' if delta > 0 else 'PlaySpeedDec'
+        write = self.write
+
+        self.cmd_stop()
+        for _ in range(int(abs(delta) / 3)):
+            write(cmd)
+
+        self._speed += delta
+        LOG.debug(f'Audacity speed: {self._speed}')
+
+        self.cmd_play()
 
     def cmd_save(self):
         self.write('Save')
