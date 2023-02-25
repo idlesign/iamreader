@@ -92,6 +92,12 @@ class RemoteControl:
     def cmd_save(self):
         self.write('Save')
 
+    def cmd_to_label_prev(self):
+        self.write('MoveToPrevLabel')
+
+    def cmd_to_label_next(self):
+        self.write('MoveToNextLabel')
+
     def cmd_add_action_label(self, *, action: TypeAction, callback: Callable = None):
         text = self.pack_action_data(action)
         callback = callback or (lambda val: val)

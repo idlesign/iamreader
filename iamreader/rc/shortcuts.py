@@ -43,6 +43,16 @@ def speed_dec(event: Event, *, ui: 'RemoteControlUi'):
     ui.rc.cmd_speed_dec()
 
 
+def label_prev(event: Event, *, ui: 'RemoteControlUi'):
+    ui.rc.cmd_to_label_prev()
+    play(event, ui=ui)
+
+
+def label_next(event: Event, *, ui: 'RemoteControlUi'):
+    ui.rc.cmd_to_label_next()
+    play(event, ui=ui)
+
+
 SHORTCUTS: List[Shortcut] = [
     Shortcut(
         keys=['Tab'],
@@ -73,6 +83,16 @@ SHORTCUTS: List[Shortcut] = [
         keys=['a'],
         hint='Playback at speed',
         func=play
+    ),
+    Shortcut(
+        keys=['Prior'],
+        hint='Go to previous label',
+        func=label_prev
+    ),
+    Shortcut(
+        keys=['Next'],
+        hint='Go to next label',
+        func=label_next
     ),
     Shortcut(
         keys=['e'],
