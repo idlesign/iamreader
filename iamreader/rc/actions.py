@@ -30,23 +30,12 @@ class UserAction(ActionBase):
 
 
 class CheckpointAction(ActionBase):
+    """Allows identification of places where some event has happened (e.g. utterance is ended)."""
 
     ident: str = 'p'
 
 
 class ChapterAction(ActionBase):
+    """Allows identification of places where a new chapter begins."""
 
     ident: str = 'c'
-
-
-class RollbackAction(ActionBase):
-
-    ident: str = 'r'
-
-    def __init__(self, *, depth: int = 1):
-        self.depth = depth
-
-    def serialize(self, params: dict = None) -> dict:
-        return super().serialize({
-            'd': self.depth,
-        })

@@ -17,7 +17,6 @@ class RemoteControl:
 
     def __init__(self):
         self._pipe_out, self._pipe_in = self._get_pipes()
-        self._recording: bool = False
         self._speed: int = 100
         self._speed_delta: int = 25
 
@@ -48,23 +47,27 @@ class RemoteControl:
 
         return p_out, p_in
 
-    def cmd_record_toggle(self):
-        if self._recording:
-            self.cmd_stop()
-            self._recording = False
+    def cmd_record(self, *, rewrite: bool = True):
+        self.cmd_stop(select=False)  # do not select to record just from the chosen label
 
-        else:
-            self.cmd_record()
-            self._recording = True
+        write = self.write
 
-    def cmd_record(self):
-        self.write('Record1stChoice')
+        if rewrite:
+            write('CursorRight')  # to preserve a label
+            write('SelAllTracks')  # select audio + labels track
+            write('SelEnd')  # select everything to the right
+            write('Delete')  # delete audio + labels
+            write('CursorLeft')
+
+        write('Record1stChoice')
 
     def cmd_pause(self):
         self.write('Pause')
 
-    def cmd_stop(self):
-        self.write('PlayStopSelect')
+    def cmd_stop(self, *, select: bool = True):
+        write = self.write
+        select and write('SetLeftSelection')
+        write('Stop')
 
     def cmd_play(self):
         self.write('PlayAtSpeed')
