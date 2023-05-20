@@ -1,5 +1,5 @@
 from functools import partial
-from tkinter import Tk, Frame, Label, Event, Text, END
+from tkinter import Tk, Frame, Label, Event, Text, END, DISABLED
 from typing import Callable
 
 from .audacity import RemoteControl, TypeAction
@@ -15,26 +15,26 @@ class RemoteControlUi:
 
         app = Tk()
         app.title('iamreader Audacity Remote Control')
+        app.geometry('400x150')
+        app.attributes('-topmost', True)
+        app.resizable(False, False)
 
         self.app = app
         self.rc = remote_control
 
         frame = Frame(
             app,
-            width=600,
-            height=100,
             name='iamreader-rc'
         )
-        self.frame = frame
 
-        statusbar = Label(app, text='', anchor='w', background='#ccc', foreground='white')
+        statusbar = Label(app, text='', anchor='w', background='#ccc', foreground='white', font=('Arial', 9))
         statusbar.pack(side='bottom', fill='x')
         self.statusbar = statusbar
 
         hint_area = Text(
-            app, width=40, height=16,
+            app,
             takefocus=False,
-            font=('Arial', 10),
+            font=('Arial', 8),
         )
         hint_area.pack(side='top', fill='both', expand=True)
         self.hint_area = hint_area
@@ -52,7 +52,7 @@ class RemoteControlUi:
 
     def on_focus_out(self, event: Event):
         self.statusbar['bg'] = 'red'
-        self.statusbar['text'] = 'This window is out of focus. The remote control for Audacity will not work.'
+        self.statusbar['text'] = "The RC won't work since the window is out of focus."
 
     def bind_event(self, *, event: str, func: Callable):
 
@@ -61,7 +61,7 @@ class RemoteControlUi:
 
         LOG.debug(f'Binding {event}: {func} ...')
 
-        self.frame.bind(event, func)
+        self.app.bind(event, func)
 
     def bind_shortcuts(self):
         LOG.debug('Binding shortcuts ...')
@@ -76,6 +76,8 @@ class RemoteControlUi:
                     event=key,
                     func=partial(shortcut.func, ui=self),
                 )
+
+        hint_area.config(state=DISABLED)
 
     def label_action(self, action: TypeAction):
         self.rc.cmd_add_action_label(

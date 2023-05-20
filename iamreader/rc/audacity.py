@@ -29,7 +29,7 @@ class RemoteControl:
             check_output('ps -xc | grep audacity', shell=True)
 
         except CalledProcessError:
-            raise RemoteControlException('Please run Audacity before iamreader is started.')
+            raise RemoteControlException('Please run Audacity before iamreader RC is started.')
 
         f_out = self._fpath_outgoing
         f_in = self._fpath_incoming
