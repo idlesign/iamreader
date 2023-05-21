@@ -20,6 +20,8 @@ class RemoteControl:
         self._speed: int = 100
         self._speed_delta: int = 25
 
+        self.is_recording = False
+
     def pack_action_data(self, action: TypeAction) -> str:
         return dumps(action.serialize())
 
@@ -61,16 +63,19 @@ class RemoteControl:
 
         write('Record1stChoice')
 
-    def cmd_pause(self):
-        self.write('Pause')
+        self.is_recording = True
 
     def cmd_stop(self, *, select: bool = True):
         write = self.write
         select and write('SetLeftSelection')
         write('Stop')
 
+        self.is_recording = False
+
     def cmd_play(self):
         self.write('PlayAtSpeed')
+
+        self.is_recording = False
 
     def cmd_speed_inc(self):
         self.cmd_speed_set(self._speed_delta)
@@ -95,11 +100,17 @@ class RemoteControl:
     def cmd_save(self):
         self.write('Save')
 
+        self.is_recording = False
+
     def cmd_to_label_prev(self):
         self.write('MoveToPrevLabel')
 
+        self.is_recording = False
+
     def cmd_to_label_next(self):
         self.write('MoveToNextLabel')
+
+        self.is_recording = False
 
     def cmd_add_action_label(self, *, action: TypeAction, callback: Callable = None):
         text = self.pack_action_data(action)
