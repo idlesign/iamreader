@@ -23,6 +23,12 @@ def record(event: Event, *, ui: 'RemoteControlUi'):
     ui.rc.cmd_record()
 
 
+def rerecord(event: Event, *, ui: 'RemoteControlUi'):
+    ui.rc.cmd_stop()
+    ui.rc.cmd_to_label_prev()
+    ui.rc.cmd_record()
+
+
 def stop(event: Event, *, ui: 'RemoteControlUi'):
     ui.rc.cmd_stop()
 
@@ -55,6 +61,16 @@ def label_next(event: Event, *, ui: 'RemoteControlUi'):
 
 SHORTCUTS: List[Shortcut] = [
     Shortcut(
+        keys=['e'],
+        hint='Add a checkpoint',
+        func=partial(label_action, action=CheckpointAction())
+    ),
+    Shortcut(
+        keys=['t'],
+        hint='Record from previous label',
+        func=rerecord
+    ),
+    Shortcut(
         keys=['a'],
         hint='Record',
         func=record
@@ -73,11 +89,6 @@ SHORTCUTS: List[Shortcut] = [
         keys=['f'],
         hint='Go to next label',
         func=label_next
-    ),
-    Shortcut(
-        keys=['e'],
-        hint='Add a checkpoint',
-        func=partial(label_action, action=CheckpointAction())
     ),
     Shortcut(
         keys=['w'],
