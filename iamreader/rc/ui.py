@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta
 from functools import partial
-from tkinter import Tk, Frame, Label, Event, Text, END, DISABLED
-from typing import Callable
+from tkinter import Tk, Frame, Label, Event, Button
+from typing import Callable, List
 
 from .audacity import RemoteControl, TypeAction
-from .shortcuts import SHORTCUTS
+from .shortcuts import (
+    Shortcut, SC_MARK, SC_RERECORD, SC_INCR, SC_DECR, SC_SAVE, SC_RECORD, SC_FOOT, SC_CHAPT, SC_PREV, SC_STOP, SC_NEXT
+)
 from .state import RemoteState
 from ..utils import LOG
 
@@ -75,13 +77,23 @@ class RemoteControlUi:
 
         statusbar.after(1000, self.on_statusbar_refresh)
 
-        hint_area = Text(
-            app,
-            takefocus=False,
-            font=('Arial', 8),
+        def place_sample_buttons(shortcuts: List[List[Shortcut]]):
+            for row_idx, row_items in enumerate(shortcuts):
+                for column_idx, shortcut in enumerate(row_items):
+                    Button(
+                        frame,
+                        text=f'{shortcut.keys[0].upper()} {shortcut.label}',
+
+                    ).grid(row=row_idx, column=column_idx, sticky='nesw')
+
+        place_sample_buttons(
+            [
+                [SC_FOOT, SC_CHAPT, SC_MARK, SC_RERECORD],
+                [SC_RECORD, SC_PREV, SC_STOP, SC_NEXT],
+                [],
+                [SC_DECR, SC_INCR, SC_SAVE],
+            ]
         )
-        hint_area.pack(side='top', fill='both', expand=True)
-        self.hint_area = hint_area
 
         frame.pack(side='top', fill='both', expand=True)
 
@@ -151,18 +163,17 @@ class RemoteControlUi:
     def bind_shortcuts(self):
         LOG.debug('Binding shortcuts ...')
 
-        hint_area = self.hint_area
+        keymap = {
+            '+': 'equal',
+            '-': 'minus',
+        }
 
-        for shortcut in SHORTCUTS:
-            hint_area.insert(END, f'{shortcut.keys} - {shortcut.hint}\n')
-
+        for shortcut in Shortcut.obj_registry:
             for key in shortcut.keys:
                 self.bind_event(
-                    event=key,
+                    event=keymap.get(key, key),
                     func=partial(shortcut.func, ui=self),
                 )
-
-        hint_area.config(state=DISABLED)
 
     def label_action(self, action: TypeAction):
         self.rc.cmd_add_action_label(

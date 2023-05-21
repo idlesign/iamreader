@@ -1,6 +1,6 @@
 from functools import partial
 from tkinter import Event
-from typing import NamedTuple, List, Callable
+from typing import List, Callable
 
 from .actions import TypeAction, CheckpointAction, ChapterAction, FootnoteAction
 
@@ -12,12 +12,18 @@ ACTION_FOOTNOTE_BEGIN = FootnoteAction(begin=True)
 ACTION_FOOTNOTE_END = FootnoteAction(begin=False)
 
 
+class Shortcut:
 
-class Shortcut(NamedTuple):
+    obj_registry: List['Shortcut'] = []
 
-    keys: List[str]
-    hint: str
-    func: Callable
+    def __init__(self, *, keys: List[str], label: str, hint: str, func: Callable):
+        self.keys = keys
+        """Key names: https://docs.huihoo.com/tkinter/tkinter-reference-a-gui-for-python/key-names.html"""
+        self.label = label
+        self.hint = hint
+        self.func = func
+
+        self.__class__.obj_registry.append(self)
 
 
 def label_action(event: Event, *, action: TypeAction, ui: 'RemoteControlUi'):
@@ -76,63 +82,80 @@ def label_next(event: Event, *, ui: 'RemoteControlUi'):
     play(event, ui=ui)
 
 
-SHORTCUTS: List[Shortcut] = [
-    Shortcut(
-        keys=['e'],
-        hint='Add a checkpoint',
-        func=partial(label_action, action=CheckpointAction())
-    ),
-    Shortcut(
-        keys=['t'],
-        hint='Record from previous label',
-        func=rerecord
-    ),
-    Shortcut(
-        keys=['a'],
-        hint='Record',
-        func=record
-    ),
-    Shortcut(
-        keys=['s'],
-        hint='Go to previous label',
-        func=label_prev
-    ),
-    Shortcut(
-        keys=['d'],
-        hint='Stop',
-        func=stop
-    ),
-    Shortcut(
-        keys=['f'],
-        hint='Go to next label',
-        func=label_next
-    ),
-    Shortcut(
-        keys=['w'],
-        hint='Mark a new chapter start',
-        func=partial(label_action, action=ChapterAction())
-    ),
-    Shortcut(
-        keys=['q'],
-        hint='Mark a footnote region start/end',
-        func=mark_footnote
-    ),
-    Shortcut(
-        keys=['Insert'],
-        hint='Save project',
-        func=save
-    ),
-    Shortcut(
-        keys=['minus'],
-        hint='Decrement playback speed',
-        func=speed_dec
-    ),
-    Shortcut(
-        keys=['equal'],
-        hint='Increment playback speed',
-        func=speed_inc
-    ),
-]
-"""
-Key names: https://docs.huihoo.com/tkinter/tkinter-reference-a-gui-for-python/key-names.html
-"""
+SC_MARK = Shortcut(
+    label='✓',
+    keys=['e'],
+    hint='Add a checkpoint mark',
+    func=partial(label_action, action=CheckpointAction())
+)
+
+SC_RERECORD = Shortcut(
+    label='←⚫',
+    keys=['t'],
+    hint='Record from previous label',
+    func=rerecord
+)
+
+SC_RECORD = Shortcut(
+    label='⚫',
+    keys=['a'],
+    hint='Record',
+    func=record
+)
+
+
+SC_PREV = Shortcut(
+    label='←',
+    keys=['s'],
+    hint='Go to previous label',
+    func=label_prev
+)
+
+SC_STOP = Shortcut(
+    label='⏹',
+    keys=['d'],
+    hint='Stop',
+    func=stop
+)
+
+SC_NEXT = Shortcut(
+    label='→',
+    keys=['f'],
+    hint='Go to next label',
+    func=label_next
+)
+
+SC_CHAPT = Shortcut(
+    label='§',
+    keys=['w'],
+    hint='Mark a new chapter start',
+    func=partial(label_action, action=ChapterAction())
+)
+
+SC_FOOT = Shortcut(
+    label='※',
+    keys=['q'],
+    hint='Mark a footnote region start/end',
+    func=mark_footnote
+)
+
+SC_SAVE = Shortcut(
+    label='🖫',
+    keys=['F2'],
+    hint='Save project',
+    func=save
+)
+
+SC_DECR = Shortcut(
+    label='⯯',
+    keys=['-'],
+    hint='Decrement playback speed',
+    func=speed_dec
+)
+
+SC_INCR = Shortcut(
+    label='⯭',
+    keys=['+'],
+    hint='Increment playback speed',
+    func=speed_inc
+)
