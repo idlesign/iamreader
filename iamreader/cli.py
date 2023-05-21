@@ -6,7 +6,7 @@ import click
 from . import VERSION_STR
 from .exceptions import IamreaderException
 from .publishing import media_publish
-from .rc import RemoteControl, RemoteControlUi
+from .rc import RemoteControl, RemoteControlUi, RemoteState
 from .utils import configure_logging, PATH_OUT_AUDIO, PATH_RESOURCES, PATH_OUT_VIDEO, PATH_OUT_IMAGES
 from .video import generate as video_generate
 
@@ -22,7 +22,11 @@ def entry_point(debug):
 @entry_point.command()
 def rc():
     """Launches a Remote Control UI for Audacity"""
-    window = RemoteControlUi(remote_control=RemoteControl())
+    state = RemoteState()
+    window = RemoteControlUi(
+        remote_control=RemoteControl(remote_state=state),
+        remote_state=state
+    )
     window.bind_shortcuts()
     window.loop()
 

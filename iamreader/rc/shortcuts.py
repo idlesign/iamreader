@@ -2,10 +2,15 @@ from functools import partial
 from tkinter import Event
 from typing import NamedTuple, List, Callable
 
-from .actions import TypeAction, CheckpointAction, ChapterAction
+from .actions import TypeAction, CheckpointAction, ChapterAction, FootnoteAction
 
 if False:  # pragma: nocover
     from .ui import RemoteControlUi  # noqa
+
+
+ACTION_FOOTNOTE_BEGIN = FootnoteAction(begin=True)
+ACTION_FOOTNOTE_END = FootnoteAction(begin=False)
+
 
 
 class Shortcut(NamedTuple):
@@ -17,6 +22,18 @@ class Shortcut(NamedTuple):
 
 def label_action(event: Event, *, action: TypeAction, ui: 'RemoteControlUi'):
     ui.label_action(action)
+
+
+def mark_footnote(event: Event, *, ui: 'RemoteControlUi'):
+    label_action(
+        event,
+        action=(
+            ACTION_FOOTNOTE_END
+            if ui.rs.toggle_footnote() else
+            ACTION_FOOTNOTE_BEGIN
+        ),
+        ui=ui
+    )
 
 
 def record(event: Event, *, ui: 'RemoteControlUi'):
@@ -92,8 +109,13 @@ SHORTCUTS: List[Shortcut] = [
     ),
     Shortcut(
         keys=['w'],
-        hint='Mark a new chapter',
+        hint='Mark a new chapter start',
         func=partial(label_action, action=ChapterAction())
+    ),
+    Shortcut(
+        keys=['q'],
+        hint='Mark a footnote region start/end',
+        func=mark_footnote
     ),
     Shortcut(
         keys=['Insert'],

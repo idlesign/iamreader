@@ -16,16 +16,16 @@ class ActionBase:
 TypeAction = TypeVar('TypeAction', bound=ActionBase)
 
 
-class UserAction(ActionBase):
+class FootnoteAction(ActionBase):
 
-    ident: str = 'u'
+    ident: str = 'f'
 
-    def __init__(self, *, slot: int):
-        self.slot = slot
+    def __init__(self, *, begin: bool):
+        self.begin = begin
 
     def serialize(self, params: dict = None) -> dict:
         return super().serialize({
-            's': self.slot,
+            'a': 'b' if self.begin else 'e',
         })
 
 

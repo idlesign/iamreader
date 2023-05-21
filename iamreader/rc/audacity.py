@@ -5,6 +5,7 @@ from subprocess import check_output, CalledProcessError
 from typing import Tuple, IO, List, Callable
 
 from .actions import TypeAction
+from .state import RemoteState
 from ..exceptions import RemoteControlException
 from ..utils import LOG
 
@@ -15,12 +16,11 @@ class RemoteControl:
     _fpath_outgoing = Path(f'/tmp/audacity_script_pipe.to.{_uid}')
     _fpath_incoming = Path(f'/tmp/audacity_script_pipe.from.{_uid}')
 
-    def __init__(self):
+    def __init__(self, *, remote_state: 'RemoteState'):
         self._pipe_out, self._pipe_in = self._get_pipes()
         self._speed: int = 100
         self._speed_delta: int = 25
-
-        self.is_recording = False
+        self.rs = remote_state
 
     def pack_action_data(self, action: TypeAction) -> str:
         return dumps(action.serialize())
@@ -63,19 +63,19 @@ class RemoteControl:
 
         write('Record1stChoice')
 
-        self.is_recording = True
+        self.rs.is_recording = True
 
     def cmd_stop(self, *, select: bool = True):
         write = self.write
         select and write('SetLeftSelection')
         write('Stop')
 
-        self.is_recording = False
+        self.rs.is_recording = False
 
     def cmd_play(self):
         self.write('PlayAtSpeed')
 
-        self.is_recording = False
+        self.rs.is_recording = False
 
     def cmd_speed_inc(self):
         self.cmd_speed_set(self._speed_delta)
@@ -100,17 +100,17 @@ class RemoteControl:
     def cmd_save(self):
         self.write('Save')
 
-        self.is_recording = False
+        self.rs.is_recording = False
 
     def cmd_to_label_prev(self):
         self.write('MoveToPrevLabel')
 
-        self.is_recording = False
+        self.rs.is_recording = False
 
     def cmd_to_label_next(self):
         self.write('MoveToNextLabel')
 
-        self.is_recording = False
+        self.rs.is_recording = False
 
     def cmd_add_action_label(self, *, action: TypeAction, callback: Callable = None):
         text = self.pack_action_data(action)

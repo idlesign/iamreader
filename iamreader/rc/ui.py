@@ -5,6 +5,7 @@ from typing import Callable
 
 from .audacity import RemoteControl, TypeAction
 from .shortcuts import SHORTCUTS
+from .state import RemoteState
 from ..utils import LOG
 
 
@@ -31,7 +32,6 @@ class Timer:
         if self.enabled:
             self.delta = datetime.now() - started
 
-
     def stop(self):
 
         if not self.enabled:
@@ -47,7 +47,7 @@ class Timer:
 
 class RemoteControlUi:
 
-    def __init__(self, *, remote_control: 'RemoteControl'):
+    def __init__(self, *, remote_control: 'RemoteControl', remote_state: 'RemoteState'):
 
         LOG.debug('Creating RC UI ...')
 
@@ -59,12 +59,13 @@ class RemoteControlUi:
 
         app = Tk()
         app.title('iamreader Audacity Remote Control')
-        app.geometry('400x150')
+        app.geometry('400x170')
         app.attributes('-topmost', True)
         app.resizable(False, False)
 
         self.app = app
         self.rc = remote_control
+        self.rs = remote_state
 
         frame = Frame(app, name='iamreader-rc')
 
@@ -97,9 +98,9 @@ class RemoteControlUi:
         time_record_current = self._time_record_current
         time_session.update()
 
-        rc = self.rc
+        state = self.rs
 
-        if rc.is_recording:
+        if state.is_recording:
             time_record_current.update()
             time_record_total.update()
 
@@ -108,9 +109,18 @@ class RemoteControlUi:
             time_record_total.stop()
 
         if self._focused:
+            state_items = []
+
+            if state.is_recording:
+                state_items.append('REC')
+
+            if state.is_in_footnote:
+                state_items.append('FN')
+
             bar['text'] = (
                 f'session: {time_session} | '
-                f'rec: total {time_record_total} / current {time_record_current}'
+                f'rec: total {time_record_total} / current {time_record_current} | '
+                f"state: {' '.join(state_items)}"
             )
 
         bar.after(1000, self.on_statusbar_refresh)
