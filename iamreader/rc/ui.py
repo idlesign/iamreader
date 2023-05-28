@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from functools import partial
-from tkinter import Tk, Frame, Label, Event, Button
+from tkinter import Tk, Frame, Label, Event, Button, font
 from typing import Callable, List
 
 from .audacity import RemoteControl, TypeAction
@@ -65,13 +65,16 @@ class RemoteControlUi:
         app.attributes('-topmost', True)
         app.resizable(False, False)
 
+        font_small = font.Font(size=8)
+        font_main = font.Font(size=12)
+
         self.app = app
         self.rc = remote_control
         self.rs = remote_state
 
         frame = Frame(app, name='iamreader-rc')
 
-        statusbar = Label(app, text='', anchor='w', background='#ccc', foreground='white', font=('Arial', 9))
+        statusbar = Label(app, text='', anchor='w', background='#ccc', foreground='white', font=font_small)
         statusbar.pack(side='bottom', fill='x')
         self.statusbar = statusbar
 
@@ -83,7 +86,7 @@ class RemoteControlUi:
                     Button(
                         frame,
                         text=f'{shortcut.keys[0].upper()} {shortcut.label}',
-
+                        font=font_main,
                     ).grid(row=row_idx, column=column_idx, sticky='nesw')
 
         place_sample_buttons(
