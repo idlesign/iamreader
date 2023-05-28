@@ -44,7 +44,7 @@ Install on Ubuntu 22.04:
 
 .. code-block::
 
-    $ sudo install audacity python3-tk ffmpeg
+    $ sudo apt install audacity python3-tk ffmpeg
 
 
 Documentation
