@@ -90,7 +90,7 @@ SC_MARK = Shortcut(
 )
 
 SC_RERECORD = Shortcut(
-    label='←⚫',
+    label='↶⚫',
     keys=['t'],
     hint='Record from previous label',
     func=rerecord
@@ -105,21 +105,21 @@ SC_RECORD = Shortcut(
 
 
 SC_PREV = Shortcut(
-    label='←',
+    label='↶',
     keys=['s'],
     hint='Go to previous label',
     func=label_prev
 )
 
 SC_STOP = Shortcut(
-    label='⏹',
+    label='◼',
     keys=['d'],
     hint='Stop',
     func=stop
 )
 
 SC_NEXT = Shortcut(
-    label='→',
+    label='↷',
     keys=['f'],
     hint='Go to next label',
     func=label_next
@@ -140,21 +140,21 @@ SC_FOOT = Shortcut(
 )
 
 SC_SAVE = Shortcut(
-    label='🖫',
+    label='✎',
     keys=['F2'],
     hint='Save project',
     func=save
 )
 
 SC_DECR = Shortcut(
-    label='⯯',
+    label='⇣',
     keys=['-'],
     hint='Decrement playback speed',
     func=speed_dec
 )
 
 SC_INCR = Shortcut(
-    label='⯭',
+    label='⇡',
     keys=['+'],
     hint='Increment playback speed',
     func=speed_inc
