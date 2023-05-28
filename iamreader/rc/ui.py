@@ -1,6 +1,7 @@
+import sys
 from datetime import datetime, timedelta
 from functools import partial
-from tkinter import Tk, Frame, Label, Event, Button, font
+from tkinter import Tk, Frame, Label, Event, Button, font, messagebox
 from typing import Callable, List
 
 from .audacity import RemoteControl, TypeAction
@@ -62,6 +63,14 @@ class RemoteControlUi:
         app = Tk()
         app.title('iamreader Audacity Remote Control')
         app.geometry('400x170')
+
+        try:
+            remote_control.bootstrap()
+
+        except Exception as e:
+            if messagebox.showerror(title='RC Failure', message=f'{e}'):
+                sys.exit()
+
         app.attributes('-topmost', True)
         app.resizable(False, False)
 

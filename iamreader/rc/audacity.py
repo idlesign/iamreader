@@ -17,21 +17,29 @@ class RemoteControl:
     _fpath_incoming = Path(f'/tmp/audacity_script_pipe.from.{_uid}')
 
     def __init__(self, *, remote_state: 'RemoteState'):
-        self._pipe_out, self._pipe_in = self._get_pipes()
+        self._pipe_out = None
+        self._pipe_in = None
         self._speed: int = 100
         self._speed_delta: int = 25
         self.rs = remote_state
 
-    def pack_action_data(self, action: TypeAction) -> str:
-        return dumps(action.serialize())
+    def bootstrap(self):
+        self._check_process()
+        self._pipe_out, self._pipe_in = self._get_pipes()
 
-    def _get_pipes(self) -> Tuple[IO, IO]:
+    def _check_process(self):
+        # todo maybe allow_spawn=True
 
         try:
             check_output('ps -xc | grep audacity', shell=True)
 
         except CalledProcessError:
             raise RemoteControlException('Please run Audacity before iamreader RC is started.')
+
+    def pack_action_data(self, action: TypeAction) -> str:
+        return dumps(action.serialize())
+
+    def _get_pipes(self) -> Tuple[IO, IO]:
 
         f_out = self._fpath_outgoing
         f_in = self._fpath_incoming
