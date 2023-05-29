@@ -90,9 +90,9 @@ SC_MARK = Shortcut(
 )
 
 SC_RERECORD = Shortcut(
-    label='↶⚫',
-    keys=['t'],
-    hint='Record from previous label',
+    label='↶ ⚫',
+    keys=['r'],
+    hint='Record from current label',
     func=rerecord
 )
 
@@ -105,21 +105,21 @@ SC_RECORD = Shortcut(
 
 
 SC_PREV = Shortcut(
-    label='↶',
+    label='↶ ▸',
     keys=['s'],
     hint='Go to previous label',
     func=label_prev
 )
 
 SC_STOP = Shortcut(
-    label='◼',
+    label='◾',
     keys=['d'],
     hint='Stop',
     func=stop
 )
 
 SC_NEXT = Shortcut(
-    label='↷',
+    label='↷ ▸',
     keys=['f'],
     hint='Go to next label',
     func=label_next
