@@ -47,7 +47,7 @@ def record(event: Event, *, ui: 'RemoteControlUi'):
 
 
 def rerecord(event: Event, *, ui: 'RemoteControlUi'):
-    ui.rc.cmd_stop()
+    stop(event, ui=ui)
     ui.rc.cmd_to_label_prev()
     ui.rc.cmd_record()
 
