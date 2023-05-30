@@ -136,10 +136,16 @@ class RemoteControlUi:
             state_items = []
 
             if state.is_recording:
-                state_items.append('REC')
+                state_items.append('⚫')
+
+            elif state.is_stopped:
+                state_items.append('◾')
+
+            elif state.is_playing:
+                state_items.append('▸')
 
             if state.is_in_footnote:
-                state_items.append('FN')
+                state_items.append('※')
 
             bar['text'] = (
                 f'session: {time_session} | '
