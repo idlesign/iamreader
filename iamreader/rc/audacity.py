@@ -95,19 +95,18 @@ class RemoteControl:
 
         write('Record1stChoice')
 
-        self.rs.is_recording = True
+        self.rs.mark_recording()
 
     def cmd_stop(self, *, select: bool = True):
+        state = self.rs
         write = self.write
-        select and write('SetLeftSelection')
+        select and (not state.is_stopped) and write('SetLeftSelection')
         write('Stop')
-
-        self.rs.is_recording = False
+        state.mark_stopped()
 
     def cmd_play(self):
         self.write('PlayAtSpeed')
-
-        self.rs.is_recording = False
+        self.rs.mark_playing()
 
     def cmd_speed_inc(self):
         self.cmd_speed_set(self._speed_delta)
@@ -131,18 +130,15 @@ class RemoteControl:
 
     def cmd_save(self):
         self.write('Save')
-
-        self.rs.is_recording = False
+        self.rs.mark_stopped()
 
     def cmd_to_label_prev(self):
         self.write('MoveToPrevLabel')
-
-        self.rs.is_recording = False
+        self.rs.mark_stopped()
 
     def cmd_to_label_next(self):
         self.write('MoveToNextLabel')
-
-        self.rs.is_recording = False
+        self.rs.mark_stopped()
 
     def cmd_add_action_label(self, *, action: TypeAction, callback: Callable = None):
         text = self.pack_action_data(action)
