@@ -1,7 +1,8 @@
 from json import dumps
 from os import getuid
 from pathlib import Path
-from subprocess import check_output, CalledProcessError
+from subprocess import check_output, CalledProcessError, Popen, DEVNULL
+from time import sleep
 from typing import Tuple, IO, List, Callable
 
 from .actions import TypeAction
@@ -24,17 +25,40 @@ class RemoteControl:
         self.rs = remote_state
 
     def bootstrap(self):
-        self._check_process()
+        self._check_process(allow_spawn=True)
         self._pipe_out, self._pipe_in = self._get_pipes()
 
-    def _check_process(self):
-        # todo maybe allow_spawn=True
+    def _check_process(self, *, allow_spawn: bool, rase_exc: bool = True) -> bool:
+
+        result = False
 
         try:
             check_output('ps -xc | grep audacity', shell=True)
+            result = True
 
         except CalledProcessError:
-            raise RemoteControlException('Please run Audacity before iamreader RC is started.')
+
+            if allow_spawn:
+                Popen('audacity', close_fds=True, stdout=DEVNULL, stderr=DEVNULL, stdin=DEVNULL)
+
+                wait = 2
+                wait_max = 15
+                waited = 0
+
+                while True:
+                    sleep(wait)
+                    waited += wait
+
+                    if self._check_process(allow_spawn=False, rase_exc=False):
+                        result = True
+
+                    if result or (waited >= wait_max):
+                        break
+
+            elif rase_exc:
+                raise RemoteControlException('Please run Audacity before iamreader RC is started.')
+
+        return result
 
     def pack_action_data(self, action: TypeAction) -> str:
         return dumps(action.serialize())
