@@ -1,6 +1,7 @@
 from json import dumps
 from os import getuid
 from pathlib import Path
+from shutil import which
 from subprocess import check_output, CalledProcessError, Popen, DEVNULL
 from time import sleep
 from typing import Tuple, IO, List, Callable
@@ -39,7 +40,10 @@ class RemoteControl:
         except CalledProcessError:
 
             if allow_spawn:
-                Popen('audacity', close_fds=True, stdout=DEVNULL, stderr=DEVNULL, stdin=DEVNULL)
+                # gtk-launch allows using .desktop shortcuts (e.g. for appImage files)
+                # see also https://gist.github.com/idlesign/9a625a53219eeb42474c16282b7a33e9
+                cmd = 'audacity' if which('audacity') else 'gtk-launch audacity'
+                Popen(cmd, shell=True, close_fds=True, stdout=DEVNULL, stderr=DEVNULL, stdin=DEVNULL)
 
                 wait = 2
                 wait_max = 15
