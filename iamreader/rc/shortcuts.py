@@ -105,7 +105,7 @@ SC_RECORD = Shortcut(
 
 
 SC_PREV = Shortcut(
-    label='↶ ▸',
+    label='↶ ◂',
     keys=['s'],
     hint='Go to previous label',
     func=label_prev
