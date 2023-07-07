@@ -135,7 +135,14 @@ class RemoteControl:
     def cmd_save(self):
         self.cmd_stop()
         self.write('Save')
-        self.rs.mark_stopped()
+
+    def cmd_strip_silence(self):
+        # PinnedHead - sticky cursor
+        self.write('CursProjectStart')
+        self.write('SelEnd')
+        self.write('SelAllTracks')
+        # Threshold -20 dB and -80 dB
+        self.write('TruncateSilence: Threshold=-20 Minimum=0.5 Compress=80 Action="Compress Excess Silence"')
 
     def cmd_to_label_prev(self):
         self.write('MoveToPrevLabel')
