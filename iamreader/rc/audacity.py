@@ -133,6 +133,7 @@ class RemoteControl:
         self.cmd_play()
 
     def cmd_save(self):
+        self.cmd_stop()
         self.write('Save')
         self.rs.mark_stopped()
 
