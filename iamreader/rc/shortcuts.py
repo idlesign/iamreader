@@ -16,12 +16,13 @@ class Shortcut:
 
     obj_registry: List['Shortcut'] = []
 
-    def __init__(self, *, keys: List[str], label: str, hint: str, func: Callable):
+    def __init__(self, *, keys: List[str], label: str, hint: str, func: Callable, enabled: bool = True):
         self.keys = keys
         """Key names: https://docs.huihoo.com/tkinter/tkinter-reference-a-gui-for-python/key-names.html"""
         self.label = label
         self.hint = hint
         self.func = func
+        self.enabled = enabled
 
         self.__class__.obj_registry.append(self)
 
@@ -100,7 +101,8 @@ SC_RECORD = Shortcut(
     label='⚫',
     keys=['a'],
     hint='Record',
-    func=record
+    func=record,
+    enabled=False,
 )
 
 
@@ -129,14 +131,16 @@ SC_CHAPT = Shortcut(
     label='§',
     keys=['w'],
     hint='Mark a new chapter start',
-    func=partial(label_action, action=ChapterAction())
+    func=partial(label_action, action=ChapterAction()),
+    enabled=False,
 )
 
 SC_FOOT = Shortcut(
     label='※',
     keys=['q'],
     hint='Mark a footnote region start/end',
-    func=mark_footnote
+    func=mark_footnote,
+    enabled=False,
 )
 
 SC_SAVE = Shortcut(

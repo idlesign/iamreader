@@ -2,7 +2,7 @@ import sys
 from datetime import datetime, timedelta
 from functools import partial
 from tkinter import Tk, Frame, Label, Event, Button, font, messagebox
-from typing import Callable, List
+from typing import Callable, List, Union
 
 from .audacity import RemoteControl, TypeAction
 from .shortcuts import (
@@ -62,7 +62,7 @@ class RemoteControlUi:
 
         app = Tk()
         app.title('iamreader Audacity Remote Control')
-        app.geometry('400x170')
+        app.geometry('250x170')
 
         try:
             remote_control.bootstrap()
@@ -89,20 +89,22 @@ class RemoteControlUi:
 
         statusbar.after(1000, self.on_statusbar_refresh)
 
-        def place_sample_buttons(shortcuts: List[List[Shortcut]]):
+        def place_sample_buttons(shortcuts: List[List[Union[Shortcut, None]]]):
             for row_idx, row_items in enumerate(shortcuts):
                 for column_idx, shortcut in enumerate(row_items):
+                    text = ' ' if shortcut is None else f'{shortcut.keys[0].upper()} {shortcut.label}'
                     Button(
                         frame,
-                        text=f'{shortcut.keys[0].upper()} {shortcut.label}',
+                        text=text,
                         font=font_main,
+                        state='disabled',
                     ).grid(row=row_idx, column=column_idx, sticky='nesw')
 
         place_sample_buttons(
             [
-                [SC_FOOT, SC_CHAPT, SC_MARK, SC_RERECORD],
-                [SC_RECORD, SC_PREV, SC_STOP, SC_NEXT],
-                [],
+                [None, SC_MARK, SC_RERECORD],
+                [SC_PREV, SC_STOP, SC_NEXT],
+                [None, None, None],
                 [SC_DECR, SC_INCR, SC_SAVE],
             ]
         )
@@ -187,6 +189,8 @@ class RemoteControlUi:
         }
 
         for shortcut in Shortcut.obj_registry:
+            if not shortcut.enabled:
+                continue
             for key in shortcut.keys:
                 self.bind_event(
                     event=keymap.get(key, key),
