@@ -4,7 +4,7 @@ from pathlib import Path
 from shutil import which
 from subprocess import check_output, CalledProcessError, Popen, DEVNULL
 from time import sleep
-from typing import Tuple, IO, List, Callable
+from typing import Tuple, IO, List, Callable, Optional
 
 from .actions import TypeAction
 from .state import RemoteState
@@ -19,14 +19,19 @@ class RemoteControl:
     _fpath_incoming = Path(f'/tmp/audacity_script_pipe.from.{_uid}')
 
     def __init__(self, *, remote_state: 'RemoteState'):
-        self._pipe_out = None
-        self._pipe_in = None
+        self._pipe_out: Optional[IO] = None
+        self._pipe_in: Optional[IO] = None
         self._speed: int = 100
         self._speed_delta: int = 25
         self.rs = remote_state
 
     def bootstrap(self):
         self._check_process(allow_spawn=True)
+        self.reset_pipes()
+
+    def reset_pipes(self):
+        for pipe in (self._pipe_in, self._pipe_out):
+            pipe and pipe.close()
         self._pipe_out, self._pipe_in = self._get_pipes()
 
     def _check_process(self, *, allow_spawn: bool, rase_exc: bool = True) -> bool:
@@ -86,7 +91,7 @@ class RemoteControl:
         return p_out, p_in
 
     def cmd_record(self, *, rewrite: bool = True):
-        self.cmd_stop(select=False)  # do not select to record just from the chosen label
+        self.cmd_stop(select=False)  # do not select: to record just from the chosen label
 
         write = self.write
 
@@ -101,12 +106,19 @@ class RemoteControl:
 
         self.rs.mark_recording()
 
-    def cmd_stop(self, *, select: bool = True):
+    def cmd_stop(self, *, select: bool = True, reset_pipes: bool = True):
+        """
+
+        :param select: Set the selection starting pointer on stop.
+        :param reset_pipes: Reset (reinitialize) links to Audacity pipes to cope with possible hangs.
+
+        """
         state = self.rs
         write = self.write
         select and (not state.is_stopped) and write('SetLeftSelection')
         write('Stop')
         state.mark_stopped()
+        reset_pipes and self.reset_pipes()
 
     def cmd_play(self):
         self.write('PlayAtSpeed')
