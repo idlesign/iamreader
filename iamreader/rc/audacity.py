@@ -106,11 +106,10 @@ class RemoteControl:
 
         self.rs.mark_recording()
 
-    def cmd_stop(self, *, select: bool = True, reset_pipes: bool = True):
+    def cmd_stop(self, *, select: bool = True):
         """
 
         :param select: Set the selection starting pointer on stop.
-        :param reset_pipes: Reset (reinitialize) links to Audacity pipes to cope with possible hangs.
 
         """
         state = self.rs
@@ -118,7 +117,6 @@ class RemoteControl:
         select and (not state.is_stopped) and write('SetLeftSelection')
         write('Stop')
         state.mark_stopped()
-        reset_pipes and self.reset_pipes()
 
     def cmd_play(self):
         self.write('PlayAtSpeed')
