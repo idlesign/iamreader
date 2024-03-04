@@ -24,7 +24,8 @@ This tool may help you to automate audio books recording, editing and publishing
 It includes:
 
 * A "remote control" for Audacity to save your time on record process;
-* Audio to video batch conversion tool to facilitate preparations and publishing on video hosting.
+* Audio to video batch conversion tool to facilitate preparations and publishing on video hosting;
+* Audio files annotator (ID3 Tagger)
 
 
 Requirements
