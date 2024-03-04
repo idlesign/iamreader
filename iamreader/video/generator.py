@@ -82,6 +82,11 @@ def generate(
     path_out_vid: Path,
     path_out_img: Path,
 ):
+    LOG.debug(f'{path_resources=}')
+    LOG.debug(f'{path_audio_in=}')
+    LOG.debug(f'{path_out_vid=}')
+    LOG.debug(f'{path_out_img=}')
+
     generate_media(
         audio_files=list_files(path_audio_in, ext='mp3'),
         annotations=Annotations(index_fpath=path_resources / 'index.txt'),
