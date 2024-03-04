@@ -9,6 +9,7 @@ from .publishing import media_publish
 from .rc import RemoteControl, RemoteControlUi, RemoteState
 from .utils import configure_logging, PATH_OUT_AUDIO, PATH_RESOURCES, PATH_OUT_VIDEO, PATH_OUT_IMAGES
 from .video import generate as video_generate
+from .audio import annotate as audio_annotate
 
 
 @click.group()
@@ -43,6 +44,20 @@ def generate():
         path_audio_in=PATH_OUT_AUDIO,
         path_out_vid=PATH_OUT_VIDEO,
         path_out_img=PATH_OUT_IMAGES,
+    )
+
+
+@entry_point.group()
+def audio():
+    """Audio related commands."""
+
+
+@audio.command()
+def annotate():
+    """Annotates audio using text index file."""
+    audio_annotate(
+        path_resources=PATH_RESOURCES,
+        path_audio_in=PATH_OUT_AUDIO,
     )
 
 

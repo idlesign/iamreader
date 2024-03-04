@@ -5,7 +5,7 @@ from typing import List, Dict, Optional, Generator, Tuple
 
 from .utils import LOG
 
-RE_FILE_NAME = re.compile('^((?:\d{2}|xx)_[^\s.]+).?\s+([^\n]+)$')
+RE_FILE_NAME = re.compile('^((?:(?:\d{2}|xx)_?)+).?\s+([^\n]+)$')
 RE_LINE_INDENT = re.compile('^(\s*)[^\n]+$')
 RE_AUTHOR = re.compile(r'^\[([^]]+)](.+)')
 
@@ -41,6 +41,16 @@ class AnnotationNode:
             parent = parent.parent
 
         return author
+
+    def get_title_first(self) -> str:
+        parent = self.parent
+        title = ''
+
+        while parent:
+            title = parent.title
+            parent = parent.parent
+
+        return title
 
     def get_full_title(self, *, root_title: bool = False) -> List[str]:
 

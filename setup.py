@@ -43,6 +43,7 @@ setup(
     install_requires=[ 
         'click',
         'Pillow',
+        'eyed3',
         'requests',
     ],
 
