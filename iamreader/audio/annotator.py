@@ -7,7 +7,7 @@ from eyed3 import load as load_audio
 from eyed3.id3 import ID3_V2_3, Tag, frames
 
 from ..annotations import Annotations
-from ..utils import LOG, list_files
+from ..utils import LOG, list_files, PATH_FILE_INDEX
 
 logger = logging.getLogger('eyed3')
 logger.setLevel(logging.ERROR)
@@ -41,7 +41,9 @@ def annotate_media(
         tag.track_num = idx
         tag.genre = 'Audiobook'
         tag.release_date = datetime.now().year
-        tag.images.set(frames.ImageFrame.FRONT_COVER, cover.read_bytes(), f'image/{cover.suffix}')
+
+        if cover.exists():
+            tag.images.set(frames.ImageFrame.FRONT_COVER, cover.read_bytes(), f'image/{cover.suffix}')
 
         tag.save(version=ID3_V2_3)
 
@@ -56,6 +58,6 @@ def annotate(
 
     annotate_media(
         audio_files=list_files(path_audio_in, ext='mp3'),
-        annotations=Annotations(index_fpath=path_resources / 'index.txt'),
+        annotations=Annotations(index_fpath=PATH_FILE_INDEX),
         cover=path_resources / 'cover.jpg',
     )

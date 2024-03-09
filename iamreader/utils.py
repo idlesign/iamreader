@@ -14,6 +14,9 @@ PATH_OUT_AUDIO = PATH_RESOURCES_OUT / 'aud'
 PATH_OUT_VIDEO = PATH_RESOURCES_OUT / 'vid'
 PATH_OUT_IMAGES = PATH_RESOURCES_OUT / 'img'
 
+FILENAME_INDEX = 'titles.txt'
+PATH_FILE_INDEX = PATH_RESOURCES / FILENAME_INDEX
+
 
 def configure_logging(log_level=None):
     """Performs basic logging configuration.

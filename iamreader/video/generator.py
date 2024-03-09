@@ -8,7 +8,7 @@ from PIL import ImageDraw
 from PIL import ImageFont
 
 from ..annotations import Annotations
-from ..utils import LOG, PATH_ASSETS, list_files
+from ..utils import LOG, PATH_ASSETS, list_files, PATH_FILE_INDEX
 
 
 def generate_cover(*, fpath: Path, text: str, template: Path):
@@ -89,7 +89,7 @@ def generate(
 
     generate_media(
         audio_files=list_files(path_audio_in, ext='mp3'),
-        annotations=Annotations(index_fpath=path_resources / 'index.txt'),
+        annotations=Annotations(index_fpath=PATH_FILE_INDEX),
         cover_template=path_resources / 'bg.png',
         dest_vid=path_out_vid,
         dest_img=path_out_img,

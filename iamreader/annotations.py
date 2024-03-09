@@ -5,7 +5,7 @@ from typing import List, Dict, Optional, Generator, Tuple
 
 from .utils import LOG
 
-RE_FILE_NAME = re.compile('^((?:(?:\d{2}|xx)_?)+).?\s+([^\n]+)$')
+RE_FILE_NAME = re.compile('^((?:(?:\d|xx)_?)+).?\s+([^\n]+)$')
 RE_LINE_INDENT = re.compile('^(\s*)[^\n]+$')
 RE_AUTHOR = re.compile(r'^\[([^]]+)](.+)')
 
