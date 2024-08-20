@@ -3,9 +3,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import List
 
-from eyed3 import load as load_audio
-from eyed3.id3 import ID3_V2_3, Tag, frames
-
 from ..annotations import Annotations
 from ..utils import LOG, list_files, PATH_FILE_INDEX
 
@@ -19,6 +16,8 @@ def annotate_media(
     annotations: Annotations,
     cover: Path,
 ):
+    from eyed3 import load as load_audio
+    from eyed3.id3 import ID3_V2_3, Tag, frames
 
     for idx, (filename, filepath, candidate_annotation) in enumerate(annotations.iter_for_files(audio_files), 1):
 
