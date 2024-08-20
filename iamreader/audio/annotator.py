@@ -10,14 +10,46 @@ logger = logging.getLogger('eyed3')
 logger.setLevel(logging.ERROR)
 
 
+def annotate_single(
+    *,
+    filepath: Path,
+    artist: str,
+    album: str,
+    title: str,
+    idx: int = 0,
+    cover: Path = None,
+):
+    from eyed3 import load as load_audio
+    from eyed3.id3 import ID3_V2_3, Tag, frames
+
+    audio = load_audio(filepath)
+
+    tag: Tag = audio.tag
+    if tag is None:
+        tag = audio.initTag()
+
+    tag.artist = artist
+    tag.album = album
+    tag.title = title
+
+    if idx:
+        tag.track_num = idx
+
+    tag.genre = 'Audiobook'
+    tag.release_date = datetime.now().year
+
+    if cover.exists():
+        tag.images.set(frames.ImageFrame.FRONT_COVER, cover.read_bytes(), f'image/{cover.suffix}')
+
+    tag.save(version=ID3_V2_3)
+
+
 def annotate_media(
     *,
     audio_files: List[Path],
     annotations: Annotations,
     cover: Path,
 ):
-    from eyed3 import load as load_audio
-    from eyed3.id3 import ID3_V2_3, Tag, frames
 
     for idx, (filename, filepath, candidate_annotation) in enumerate(annotations.iter_for_files(audio_files), 1):
 
@@ -28,23 +60,14 @@ def annotate_media(
         title = candidate_annotation.title
         LOG.info(f'Annotating "{filename}" -> {title} ...')
 
-        audio = load_audio(filepath)
-
-        tag: Tag = audio.tag
-        if tag is None:
-            tag = audio.initTag()
-
-        tag.artist = candidate_annotation.get_author_first()
-        tag.album = candidate_annotation.get_title_first()
-        tag.title = title
-        tag.track_num = idx
-        tag.genre = 'Audiobook'
-        tag.release_date = datetime.now().year
-
-        if cover.exists():
-            tag.images.set(frames.ImageFrame.FRONT_COVER, cover.read_bytes(), f'image/{cover.suffix}')
-
-        tag.save(version=ID3_V2_3)
+        annotate_single(
+            filepath=filepath,
+            artist=candidate_annotation.get_author_first(),
+            album=candidate_annotation.get_title_first(),
+            title=title,
+            idx=idx,
+            cover=cover,
+        )
 
 
 def annotate(
