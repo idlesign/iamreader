@@ -38,7 +38,7 @@ the following software is needed:
 
   With ``mod-script-pipe`` support enabled in ``Preferences -> Modules``.
 
-* Tkinter
+* Tkinter (`python3-tk`)
 * ffmpeg
 
 Install on Ubuntu 22.04:
